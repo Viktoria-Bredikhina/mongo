@@ -1,73 +1,75 @@
-const Book = require('../models/book');
+const Book = require("../models/book");
 
-const getBooks = (request, response) => {
-	return Book.find({})
-		.then((data) => {
-			response.statusCode = 200;
-			response.send(data);
-		})
-		.catch((error) => {
-			response.statusCode = 404;
-			response.send(error.message);
-		});
-};
-const getBook = (request, response) => {
-	const { book_id } = request.params;
-	console.log(book_id);
-	return Book.findById(book_id)
-		.then((book) => {
-			response.statusCode = 200;
-			response.send(book);
-		})
-		.catch((error) => {
-			response.statusCode = 404;
-			response.send(error.message);
-		});
-};
-const addBook = (request, response) => {
-	return Book.create({
-		...request.body,
-	})
-		.then((book) => {
-			response.statusCode = 201;
-			response.send(book);
-		})
-		.catch((error) => {
-			response.statusCode = 500;
-			response.send(error.message);
-		});
+const getAllBooks = async (req, res) => {
+  try {
+    const books = await Book.find();
+    res.status(200).json(books);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
-const updateInfoBook = (request, response) => {
-	const { book_id } = request.params;
-	return Book.findByIdAndUpdate(book_id, { ...request.body })
-		.then((book) => {
-			response.statusCode = 200;
-			response.send('book info was update');
-		})
-		.catch((error) => {
-			response.statusCode = 500;
-			response.send(error.message);
-		});
+const getBookById = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+    res.status(200).json(book);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
-const deleteBook = (request, response) => {
-	const { book_id } = request.params;
-	return Book.findByIdAndDelete(book_id, { ...request.body })
-		.then((book) => {
-			response.statusCode = 200;
-			response.send('book was delete');
-		})
-		.catch((error) => {
-			response.statusCode = 500;
-			response.send(error.message);
-		});
+const createBook = async (req, res) => {
+  try {
+    const { title, author, year } = req.body;
+    const book = new Book({ title, author, year });
+    await book.save();
+    res.status(201).json(book);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const updateBook = async (req, res) => {
+  try {
+    const { title, author, year } = req.body;
+    const book = await Book.findByIdAndUpdate(
+      req.params.id,
+      { title, author, year },
+      { new: true }
+    );
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+    res.status(200).json(book);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const deleteBook = async (req, res) => {
+  try {
+    const book = await Book.findByIdAndDelete(req.params.id);
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+    res.status(200).json({ message: "Book deleted" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 module.exports = {
-	getBooks,
-	getBook,
-	addBook,
-	updateInfoBook,
-	deleteBook,
+  getAllBooks,
+  getBookById,
+  createBook,
+  updateBook,
+  deleteBook,
 };

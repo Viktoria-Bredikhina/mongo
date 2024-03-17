@@ -1,72 +1,75 @@
- const User = require('../models/user');
-const getUsers = (request, response) => {
-	return User.find({})
-		.then((data) => {
-			response.statusCode = 200;
-			response.send(data);
-		})
-		.catch((error) => {
-			response.statusCode = 404;
-			response.send(error.message);
-		});
-};
-const getUser = (request, response) => {
-	const { user_id } = request.params;
-	console.log(user_id);
-	return User.findById(user_id)
-		.then((user) => {
-			response.statusCode = 200;
-			response.send(user);
-		})
-		.catch((error) => {
-			response.statusCode = 404;
-			response.send(error.message);
-		});
-};
-const createUser = (request, response) => {
-	return User.create({
-		...request.body,
-	})
-		.then((user) => {
-			response.statusCode = 201;
-			response.send(user);
-		})
-		.catch((error) => {
-			response.statusCode = 500;
-			response.send(error.message);
-		});
+const User = require("../models/user");
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
-const updateUser = (request, response) => {
-	const { user_id } = request.params;
-	return User.findByIdAndUpdate(user_id, { ...request.body })
-		.then((user) => {
-			response.statusCode = 200;
-			response.send('user was update');
-		})
-		.catch((error) => {
-			response.statusCode = 500;
-			response.send(error.message);
-		});
+const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
-const deleteUser = (request, response) => {
-	const { user_id } = request.params;
-	return User.findByIdAndDelete(user_id, { ...request.body })
-		.then((user) => {
-			response.statusCode = 200;
-			response.send('user was delete');
-		})
-		.catch((error) => {
-			response.statusCode = 500;
-			response.send(error.message);
-		});
+const createUser = async (req, res) => {
+  try {
+    const { firstName, lastName, username } = req.body;
+    const user = new User({ firstName, lastName, username });
+    await user.save();
+    res.status(201).json(user);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const { firstName, lastName, username } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { firstName, lastName, username },
+      { new: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "User deleted" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 module.exports = {
-	getUsers,
-	getUser,
-	createUser,
-	updateUser,
-	deleteUser,
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deleteUser,
 };
