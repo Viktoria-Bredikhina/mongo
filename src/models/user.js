@@ -1,25 +1,25 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  firstName: {
+  name: {
     type: String,
     required: true,
-    minlength: 2,
-  },
-  lastName: {
-    type: String,
-    required: true,
-    minlength: 2,
+    minLength: 2,
   },
   username: {
     type: String,
     required: true,
-    minlength: 5,
+    minLength: 5,
+  },
+  email: {
+    type: String,
+    required: true,
+    minLength: 2,
+  },
+  books: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "book" }],
+    default: [],
   },
 });
 
-const User = mongoose.model("User", userSchema);
-
-module.exports = {
-  User,
-};
+module.exports = mongoose.model("user", userSchema);

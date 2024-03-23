@@ -1,19 +1,16 @@
 const router = require("express").Router();
-const loggerUrl = require("../middlewares/logger");
-
 const {
   getUsers,
-  getUserById,
+  getUser,
   createUser,
   updateUser,
   deleteUser,
 } = require("../controllers/users");
-router.use(loggerUrl);
 
 router.get("/users", getUsers);
-router.get("/users/:id", getUserById);
+router.get("/users/:user_id", getUser);
 router.post("/users", createUser);
-router.put("/users/:id", updateUser);
-router.delete("/users/:id", deleteUser);
+router.patch("/users/:user_id", updateUser);
+router.delete("/users/:user_id", deleteUser);
 
 module.exports = router;

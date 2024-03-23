@@ -1,74 +1,61 @@
 const User = require("../models/user");
 
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const getUsers = (request, response) => {
+  return User.find({})
+    .then((data) => {
+      response.status(200).send(data);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const getUserById = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json(user);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const getUser = (request, response) => {
+  const { user_id } = request.params;
+  return User.findById(user_id)
+    .then((user) => {
+      response.status(200).send(user);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const createUser = async (req, res) => {
-  try {
-    const { firstName, lastName, username } = req.body;
-    const user = new User({ firstName, lastName, username });
-    await user.save();
-    res.status(201).json(user);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const createUser = (request, response) => {
+  return User.create({ ...request.body })
+    .then((user) => {
+      response.status(201).send(user);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const updateUser = async (req, res) => {
-  try {
-    const { firstName, lastName, username } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { firstName, lastName, username },
-      { new: true }
-    );
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json(user);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const updateUser = (request, response) => {
+  const { user_id } = request.params;
+  return User.findByIdAndUpdate(user_id, { ...request.body })
+    .then((user) => {
+      response.status(200).send(user);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json({ message: "User deleted" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const deleteUser = (request, response) => {
+  const { user_id } = request.params;
+  return User.findByIdAndDelete(user_id)
+    .then((user) => {
+      response.status(200).send(user);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
 module.exports = {
-  getAllUsers,
-  getUserById,
+  getUsers,
+  getUser,
   createUser,
   updateUser,
   deleteUser,

@@ -1,74 +1,61 @@
 const Book = require("../models/book");
 
-const getAllBooks = async (req, res) => {
-  try {
-    const books = await Book.find();
-    res.status(200).json(books);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const getBooks = (request, response) => {
+  return Book.find({})
+    .then((data) => {
+      response.status(200).send(data);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const getBookById = async (req, res) => {
-  try {
-    const book = await Book.findById(req.params.id);
-    if (!book) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    res.status(200).json(book);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const getBook = (request, response) => {
+  const { book_id } = request.params;
+  return Book.findById(book_id)
+    .then((book) => {
+      response.status(200).send(book);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const createBook = async (req, res) => {
-  try {
-    const { title, author, year } = req.body;
-    const book = new Book({ title, author, year });
-    await book.save();
-    res.status(201).json(book);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const createBook = (request, response) => {
+  return Book.create({ ...request.body })
+    .then((book) => {
+      response.status(201).send(book);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const updateBook = async (req, res) => {
-  try {
-    const { title, author, year } = req.body;
-    const book = await Book.findByIdAndUpdate(
-      req.params.id,
-      { title, author, year },
-      { new: true }
-    );
-    if (!book) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    res.status(200).json(book);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const updateBook = (request, response) => {
+  const { book_id } = request.params;
+  return Book.findByIdAndUpdate(book_id, { ...request.body })
+    .then((book) => {
+      response.status(200).send(book);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
-const deleteBook = async (req, res) => {
-  try {
-    const book = await Book.findByIdAndDelete(req.params.id);
-    if (!book) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    res.status(200).json({ message: "Book deleted" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server Error" });
-  }
+const deleteBook = (request, response) => {
+  const { book_id } = request.params;
+  return Book.findByIdAndDelete(book_id)
+    .then((book) => {
+      response.status(200).send(book);
+    })
+    .catch((e) => {
+      response.status(500).send(e.message);
+    });
 };
 
 module.exports = {
-  getAllBooks,
-  getBookById,
+  getBooks,
+  getBook,
   createBook,
   updateBook,
   deleteBook,
